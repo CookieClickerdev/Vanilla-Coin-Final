@@ -435,6 +435,10 @@ def api_airdrop():
 
 @app.route("/api/mine", methods=["POST"])
 def api_mine():
+    """
+    Mine for the full requested duration, even if blocks are found early.
+    We do this by calling the server in smaller steps and looping until time is up.
+    """
     try:
         data = request.get_json(force=True)
         username = data.get("username", "").strip()
@@ -442,14 +446,44 @@ def api_mine():
         if not username or seconds <= 0:
             return jsonify({"success": False, "message": "Username and seconds required"}), 400
 
-        resp = cmd_mine(username, seconds)
-        if resp is None:
-            return jsonify({"success": False, "message": "Server unreachable"}), 503
+        # Step size: 1–5 seconds is usually responsive without spamming
+        step = int(data.get("step", 2))
+        step = max(1, min(step, 10))
 
-        low = resp.strip().upper()
-        if "MINE_SUCCESS" in low or "MINED" in low or "OK" in low:
-            return jsonify({"success": True, "message": resp})
-        return jsonify({"success": True, "message": resp})
+        start = time.time()
+        end = start + seconds
+
+        blocks_found = 0
+        last_resp = ""
+
+        # Keep mining until time is up
+        while time.time() < end:
+            remaining = end - time.time()
+            this_step = step if remaining >= step else max(1, int(remaining))
+
+            resp = cmd_mine(username, this_step)
+            if resp is None:
+                return jsonify({"success": False, "message": "Server unreachable"}), 503
+
+            last_resp = resp
+            up = resp.strip().upper()
+
+            # Count blocks if your server output includes any of these keywords
+            # (adjust if your server uses different wording)
+            if ("BLOCK" in up and ("MINED" in up or "FOUND" in up)) or ("MINE_SUCCESS" in up):
+                blocks_found += 1
+
+            # Tiny sleep to avoid hammering the socket loop; optional
+            time.sleep(0.05)
+
+        elapsed = time.time() - start
+        return jsonify({
+            "success": True,
+            "message": f"Mined for {elapsed:.1f}s (requested {seconds}s). Blocks found: {blocks_found}.",
+            "blocks_found": blocks_found,
+            "last_response": last_resp
+        })
+
     except Exception as e:
         return jsonify({"success": False, "message": f"Error: {e}"}), 500
 
@@ -1480,16 +1514,15 @@ $('btnStartMine').onclick = async () => {
     hide($('miningProgress'));
     
     if (j.success) {
-      blocksMined++;
-      totalEarnings += 100;
-      addTerminalLog('BLOCK MINED SUCCESSFULLY!', 'success');
-      addTerminalLog(`Reward: 100 VNC`, 'success');
-      addTerminalLog(`Total blocks: ${blocksMined}`, 'info');
-      showAlert('mineAlert', 'Block mined! You earned 100 VNC', 'success');
+      const found = Number(j.blocks_found || 0);
+      blocksMined += found;
+      totalEarnings += found * 100;
+    
+      addTerminalLog(`Mining complete. Blocks found: ${found}`, found > 0 ? 'success' : 'info');
+      if (found > 0) addTerminalLog(`Reward: ${found * 100} VNC`, 'success');
+    
+      showAlert('mineAlert', `Mining finished. Blocks found: ${found}`, found > 0 ? 'success' : 'info');
       await refreshBalance();
-    } else {
-      addTerminalLog('Mining failed: ' + (j.message || 'Unknown error'), 'error');
-      showAlert('mineAlert', j.message || 'Mining failed', 'error');
     }
     
     updateMiningStats();
@@ -1587,3 +1620,4 @@ if __name__ == "__main__":
         print("\nShutting down...")
     finally:
         bridge.disconnect()
+
