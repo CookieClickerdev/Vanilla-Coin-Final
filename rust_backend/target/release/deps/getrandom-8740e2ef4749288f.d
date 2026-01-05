@@ -1,0 +1,11 @@
+C:\Code\PassionProject\rust_backend\target\release\deps\libgetrandom-8740e2ef4749288f.rmeta: C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\lib.rs C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error.rs C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\util.rs C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error_impls.rs C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\windows.rs
+
+C:\Code\PassionProject\rust_backend\target\release\deps\libgetrandom-8740e2ef4749288f.rlib: C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\lib.rs C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error.rs C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\util.rs C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error_impls.rs C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\windows.rs
+
+C:\Code\PassionProject\rust_backend\target\release\deps\getrandom-8740e2ef4749288f.d: C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\lib.rs C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error.rs C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\util.rs C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error_impls.rs C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\windows.rs
+
+C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\lib.rs:
+C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error.rs:
+C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\util.rs:
+C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error_impls.rs:
+C:\Users\vika_\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\windows.rs:

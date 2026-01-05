@@ -1,0 +1,16 @@
+[package]
+name = "vanillacoin_miner"
+version = "2.0.0"
+edition = "2021"
+authors = ["Danila <meltan1199@gmail.com>"]
+description = "A Rust program for mining on the VanillaCoin Blockchain with dynamic difficulty and local storage."
+
+[dependencies]
+blake3 = "1.3.3"
+rand = "0.8.5"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[[bin]]
+name = "miner"
+path = "src/main.rs"

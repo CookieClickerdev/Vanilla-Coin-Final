@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VanillaCoin - Cryptocurrency Wallet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #4c51bf;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .connection-status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .status-connected {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-disconnected {
+            background: #ef4444;
+            color: white;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #4c51bf;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .balance-display {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #059669;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4c51bf;
+            box-shadow: 0 0 0 3px rgba(76, 81, 191, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4c51bf, #667eea);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 81, 191, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(217, 119, 6, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .transaction-history {
+            grid-column: 1 / -1;
+        }
+
+        .transaction-item {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #4c51bf;
+        }
+
+        .transaction-sent {
+            border-left-color: #ef4444;
+        }
+
+        .transaction-received {
+            border-left-color: #10b981;
+        }
+
+        .transaction-mining {
+            border-left-color: #f59e0b;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .transaction-sent .transaction-amount {
+            color: #ef4444;
+        }
+
+        .transaction-received .transaction-amount {
+            color: #10b981;
+        }
+
+        .transaction-mining .transaction-amount {
+            color: #f59e0b;
+        }
+
+        .mining-controls {
+            grid-column: 1 / -1;
+        }
+
+        .mining-status {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .mining-active {
+            color: #059669;
+            font-weight: bold;
+        }
+
+        .mining-inactive {
+            color: #6b7280;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border: 1px solid #93c5fd;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .tab.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #4c51bf;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .balance-display {
+                font-size: 2rem;
+            }
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🪙 VanillaCoin Wallet</h1>
+            <div id="connectionStatus" class="connection-status status-disconnected">
+                Disconnected from Server
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('wallet')">💰 Wallet</div>
+            <div class="tab" onclick="switchTab('mining')">⛏️ Mining</div>
+            <div class="tab" onclick="switchTab('history')">📊 History</div>
+        </div>
+
+        <div id="walletTab" class="tab-content active">
+            <div class="main-grid">
+                <div class="card">
+                    <h2>
+                        <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
+                        </svg>
+                        Your Balance
+                    </h2>
+                    <div class="balance-display" id="balanceDisplay">0.00 VNC</div>
+                    <button class="btn btn-success" onclick="refreshBalance()" style="width: 100%;">
+                        🔄 Refresh Balance
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h2>
+                        <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                        </svg>
+                        Send VanillaCoin
+                    </h2>
+                    <div class="form-group">
+                        <label>Recipient Username:</label>
+                        <input type="text" id="recipientUsername" placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount:</label>
+                        <input type="number" id="sendAmount" step="0.01" min="0.01" placeholder="0.00">
+                    </div>
+                    <button class="btn btn-primary" onclick="sendCoins()" style="width: 100%;">
+                        💸 Send Coins
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>
+                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12a1 1 0 102 0V8a1 1 0 10-2 0v4zm1-7a1 1 0 100 2 1 1 0 000-2z"/>
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12z"/>
+                    </svg>
+                    Quick Actions
+                </h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <button class="btn btn-success" onclick="addTestCoins()">
+                        ➕ Add 10 Test Coins
+                    </button>
+                    <button class="btn btn-primary" onclick="connectToServer()">
+                        🔌 Connect to Server
+                    </button>
+                    <button class="btn btn-warning" onclick="showAccountInfo()">
+                        👤 Account Info
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="miningTab" class="tab-content">
+            <div class="card mining-controls">
+                <h2>
+                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"/>
+                    </svg>
+                    Mining Control Panel
+                </h2>
+                <div class="mining-status">
+                    <p id="miningStatus" class="mining-inactive">Mining is currently inactive</p>
+                    <p>Blocks Mined: <span id="blocksMined">0</span></p>
+                    <p>Current Difficulty: <span id="currentDifficulty">2</span></p>
+                    <p>Mining Reward: <span style="color: #059669; font-weight: bold;">100 VNC per block</span></p>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                    <button class="btn btn-success" onclick="startMining()" id="startMiningBtn">
+                        ▶️ Start Mining
+                    </button>
+                    <button class="btn btn-warning" onclick="stopMining()" id="stopMiningBtn" disabled>
+                        ⏹️ Stop Mining
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="historyTab" class="tab-content">
+            <div class="card transaction-history">
+                <h2>
+                    <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                    </svg>
+                    Transaction History
+                </h2>
+                <div id="transactionHistory">
+                    <div class="transaction-item transaction-mining">
+                        <div>
+                            <div style="font-weight: 600;">Mining Reward</div>
+                            <div style="color: #6b7280; font-size: 0.9rem;">Block #1 mined</div>
+                            <div style="color: #6b7280; font-size: 0.8rem;">2024-01-15 14:30:22</div>
+                        </div>
+                        <div class="transaction-amount">+100.00 VNC</div>
+                    </div>
+                    <div class="transaction-item transaction-sent">
+                        <div>
+                            <div style="font-weight: 600;">Sent to alice_user</div>
+                            <div style="color: #6b7280; font-size: 0.9rem;">Transaction confirmed</div>
+                            <div style="color: #6b7280; font-size: 0.8rem;">2024-01-15 15:45:10</div>
+                        </div>
+                        <div class="transaction-amount">-25.50 VNC</div>
+                    </div>
+                    <div class="transaction-item transaction-received">
+                        <div>
+                            <div style="font-weight: 600;">Received from bob_miner</div>
+                            <div style="color: #6b7280; font-size: 0.9rem;">Payment received</div>
+                            <div style="color: #6b7280; font-size: 0.8rem;">2024-01-15 16:20:33</div>
+                        </div>
+                        <div class="transaction-amount">+50.00 VNC</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="alertContainer"></div>
+    </div>
+
+    <script>
+        // Global state
+        let currentBalance = 0;
+        let isConnected = false;
+        let isMining = false;
+        let blocksMined = 0;
+        let currentUser = localStorage.getItem('vanillacoin_user') || 'demo_user';
+
+        // Initialize the application
+        function init() {
+            updateConnectionStatus();
+            loadUserData();
+            refreshBalance();
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Update connection status
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connectionStatus');
+            if (isConnected) {
+                statusElement.textContent = 'Connected to Server';
+                statusElement.className = 'connection-status status-connected';
+            } else {
+                statusElement.textContent = 'Disconnected from Server';
+                statusElement.className = 'connection-status status-disconnected';
+            }
+        }
+
+        // Load user data from localStorage
+        function loadUserData() {
+            const userData = JSON.parse(localStorage.getItem('vanillacoin_data') || '{}');
+            currentBalance = userData.balance || 0;
+            blocksMined = userData.blocksMined || 0;
+            
+            updateBalanceDisplay();
+            document.getElementById('blocksMined').textContent = blocksMined;
+        }
+
+        // Save user data to localStorage
+        function saveUserData() {
+            const userData = {
+                balance: currentBalance,
+                blocksMined: blocksMined,
+                lastUpdated: new Date().toISOString()
+            };
+            localStorage.setItem('vanillacoin_data', JSON.stringify(userData));
+        }
+
+        // Update balance display
+        function updateBalanceDisplay() {
+            document.getElementById('balanceDisplay').textContent = currentBalance.toFixed(2) + ' VNC';
+        }
+
+        // Show alert messages
+        function showAlert(message, type = 'info', duration = 5000) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            alertContainer.appendChild(alertDiv);
+            
+            // Auto-remove after duration
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, duration);
+        }
+
+        // Connect to server (simulated)
+        function connectToServer() {
+            // In a real implementation, this would establish a WebSocket connection
+            // to your Python server
+            showAlert('Attempting to connect to server...', 'info');
+            
+            setTimeout(() => {
+                isConnected = Math.random() > 0.3; // 70% success rate for demo
+                updateConnectionStatus();
+                
+                if (isConnected) {
+                    showAlert('Successfully connected to VanillaCoin server!', 'success');
+                    // Simulate receiving real balance from server
+                    currentBalance += Math.random() * 50;
+                    updateBalanceDisplay();
+                    saveUserData();
+                } else {
+                    showAlert('Failed to connect to server. Please check your connection.', 'error');
+                }
+            }, 2000);
+        }
+
+        // Refresh balance
+        function refreshBalance() {
+            showAlert('Refreshing balance...', 'info');
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                if (isConnected) {
+                    // In real implementation, this would query the server
+                    currentBalance += Math.random() * 10 - 5; // Random fluctuation for demo
+                    currentBalance = Math.max(0, currentBalance); // Ensure non-negative
+                } else {
+                    // Use stored balance when offline
+                    loadUserData();
+                }
+                
+                updateBalanceDisplay();
+                saveUserData();
+                showAlert('Balance updated successfully!', 'success');
+            }, 1500);
+        }
+
+        // Send coins
+        function sendCoins() {
+            const recipient = document.getElementById('recipientUsername').value.trim();
+            const amount = parseFloat(document.getElementById('sendAmount').value);
+            
+            if (!recipient) {
+                showAlert('Please enter a recipient username.', 'error');
+                return;
+            }
+            
+            if (!amount || amount <= 0) {
+                showAlert('Please enter a valid amount.', 'error');
+                return;
+            }
+            
+            if (amount > currentBalance) {
+                showAlert('Insufficient balance for this transaction.', 'error');
+                return;
+            }
+            
+            if (!isConnected) {
+                showAlert('Please connect to the server first.', 'error');
+                return;
+            }
+            
+            showAlert(`Sending ${amount.toFixed(2)} VNC to ${recipient}...`, 'info');
+            
+            // Simulate transaction processing
+            setTimeout(() => {
+                currentBalance -= amount;
+                updateBalanceDisplay();
+                saveUserData();
+                
+                // Clear form
+                document.getElementById('recipientUsername').value = '';
+                document.getElementById('sendAmount').value = '';
+                
+                showAlert(`Successfully sent ${amount.toFixed(2)} VNC to ${recipient}!`, 'success');
+                
+                // Add to transaction history
+                addTransactionToHistory('sent', recipient, amount);
+            }, 2000);
+        }
+
+        // Add test coins (for development/testing)
+        function addTestCoins() {
+            currentBalance += 10;
+            updateBalanceDisplay();
+            saveUserData();
+            showAlert('Added 10 test coins to your balance!', 'success');
+            
+            addTransactionToHistory('received', 'Test System', 10);
+        }
+
+        // Start mining
+        function startMining() {
+            if (!isConnected) {
+                showAlert('Please connect to the server before mining.', 'error');
+                return;
+            }
+            
+            isMining = true;
+            document.getElementById('miningStatus').textContent = 'Mining in progress...';
+            document.getElementById('miningStatus').className = 'mining-active';
+            document.getElementById('startMiningBtn').disabled = true;
+            document.getElementById('stopMiningBtn').disabled = false;
+            
+            showAlert('Started mining VanillaCoin blocks...', 'success');
+            
+            // Simulate mining process
+            simulateMining();
+        }
+
+        // Stop mining
+        function stopMining() {
+            isMining = false;
+            document.getElementById('miningStatus').textContent = 'Mining stopped';
+            document.getElementById('miningStatus').className = 'mining-inactive';
+            document.getElementById('startMiningBtn').disabled = false;
+            document.getElementById('stopMiningBtn').disabled = true;
+            
+            showAlert('Mining stopped.', 'info');
+        }
+
+        // Simulate mining process
+        function simulateMining() {
+            if (!isMining) return;
+            
+            // Random mining time between 10-30 seconds for demo
+            const miningTime = Math.random() * 20000 + 10000;
+            
+            setTimeout(() => {
+                if (isMining) {
+                    // Successfully mined a block
+                    blocksMined++;
+                    currentBalance += 100; // Mining reward
+                    
+                    document.getElementById('blocksMined').textContent = blocksMined;
+                    updateBalanceDisplay();
+                    saveUserData();
+                    
+                    showAlert(`Successfully mined block #${blocksMined}! Earned 100 VNC`, 'success');
+                    
+                    // Add to transaction history
+                    addTransactionToHistory('mining', `Block #${blocksMined}`, 100);
+                    
+                    // Continue mining
+                    simulateMining();
+                }
+            }, miningTime);
+        }
+
+        // Show account info
+        function showAccountInfo() {
+            const userData = JSON.parse(localStorage.getItem('vanillacoin_data') || '{}');
+            const message = `
+                Username: ${currentUser}
+                Balance: ${currentBalance.toFixed(2)} VNC
+                Blocks Mined: ${blocksMined}
+                Last Updated: ${userData.lastUpdated || 'Never'}
+                Connection Status: ${isConnected ? 'Connected' : 'Disconnected'}
+            `;
+            
+            alert(message); // In a real app, you'd use a proper modal
+        }
+
+        // Add transaction to history
+        function addTransactionToHistory(type, counterparty, amount) {
+            const historyContainer = document.getElementById('transactionHistory');
+            const transactionDiv = document.createElement('div');
+            
+            let typeClass = '';
+            let typeText = '';
+            let amountPrefix = '';
+            
+            switch(type) {
+                case 'sent':
+                    typeClass = 'transaction-sent';
+                    typeText = `Sent to ${counterparty}`;
+                    amountPrefix = '-';
+                    break;
+                case 'received':
+                    typeClass = 'transaction-received';
+                    typeText = `Received from ${counterparty}`;
+                    amountPrefix = '+';
+                    break;
+                case 'mining':
+                    typeClass = 'transaction-mining';
+                    typeText = `Mining Reward`;
+                    amountPrefix = '+';
+                    break;
+            }
+            
+            const now = new Date();
+            const timestamp = now.toLocaleString();
+            
+            transactionDiv.className = `transaction-item ${typeClass}`;
+            transactionDiv.innerHTML = `
+                <div>
+                    <div style="font-weight: 600;">${typeText}</div>
+                    <div style="color: #6b7280; font-size: 0.9rem;">${counterparty}</div>
+                    <div style="color: #6b7280; font-size: 0.8rem;">${timestamp}</div>
+                </div>
+                <div class="transaction-amount">${amountPrefix}${amount.toFixed(2)} VNC</div>
+            `;
+            
+            // Insert at the top of the history
+            historyContainer.insertBefore(transactionDiv, historyContainer.firstChild);
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
